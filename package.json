@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/WarriorofZarona/Employee-Tracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
     "dotenv": "^8.2.0",
     "figlet": "^1.3.0",
     "inquirer": "^7.1.0",

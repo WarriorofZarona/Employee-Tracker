@@ -1,7 +1,8 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
 const dotenv = require('dotenv').config();
-var figlet = require('figlet');
+const figlet = require('figlet');
+const cTable = require('console.table');
 
 var connection = mysql.createConnection({
   host: "localhost",
