@@ -28,7 +28,37 @@ connection.connect(function (err) {
 init = () => {
   connection.query('SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e INNER JOIN role ON e.role_id=role.id INNER JOIN department on role.department_id=department.id LEFT JOIN employee m ON m.id = e.manager_id', (err, res) => {
     console.table(res);
-    connection.end;
+    start();
   })
+
+}
+
+start = () => {
+
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select an option",
+      name: "option",
+      choices: ["ADD", "VIEW", "UPDATE", "EXIT"]
+    }).then(answer => {
+      const option = answer.option;
+
+      switch (option) {
+        case "ADD":
+          add();
+          break;
+        case "VIEW":
+          view();
+          break;
+        case "UPDATE":
+          update();
+          break;
+        case "EXIT":
+          connection.end();
+      }
+
+
+    })
 
 }
