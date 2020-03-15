@@ -1,0 +1,24 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Terminal that connects to an employee database to create, render, update, and delete data",
+  "main": "employeeDB.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WarriorofZarona/Employee-Tracker.git"
+  },
+  "author": "Andrew Bautista",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WarriorofZarona/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/WarriorofZarona/Employee-Tracker#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "inquirer": "^7.1.0",
+    "mysql": "^2.18.1"
+  }
+}
