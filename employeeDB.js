@@ -62,3 +62,31 @@ start = () => {
     })
 
 }
+
+add = () => {
+
+  inquirer
+    .prompt({
+      type: "list",
+      message: "What would you like to add?",
+      name: "add",
+      choices: ["DEPARTMENT", "ROLE", "EMPLOYEE"]
+
+    }).then(answer => {
+      const option = answer.add;
+
+      switch (option) {
+
+        case "DEPARTMENT":
+          addDepartment();
+          break;
+        case "ROLE":
+          addRole();
+          break;
+        case "EMPLOYEE":
+          addEmployee();
+          break;
+      }
+    })
+
+}
