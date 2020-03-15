@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 const dotenv = require('dotenv').config();
+var figlet = require('figlet');
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -12,7 +13,14 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-
-  console.log("connected as id " + connection.threadId);
-  connection.end();
+  figlet('Employee Tracker', function (err, data) {
+    if (err) {
+      console.log('Something went wrong...');
+      console.dir(err);
+      return;
+    }
+    console.log(data)
+  });
+  init();
 });
+
