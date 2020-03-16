@@ -120,45 +120,26 @@ view = () => {
 
 update = async () => {
   inquirer
-    .prompt([{
+    .prompt({
       type: "list",
-      message: "Please select the [EMPLOYEE] you'd like to update: ",
-      choices: await employeeQuery(),
-      name: "employee"
-    },
-    {
-      type: "list",
-      message: "Please select the employee's updated [ROLE]: ",
-      choices: await roleQuery(),
-      name: "role"
-    },
-    {
-      type: "list",
-      message: "Please select the employee's new [MANAGER} (or [NONE] if there isn't one): ",
-      choices: await managerQuery(),
-      name: "manager"
-    }])
-    .then(async answer => {
-      console.log("Updating employee role...\n")
-      const employeeId = await employeeIdQuery(answer.employee);
-      const newRoleID = await roleIdQuery(answer.role);
-      const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
-      const query = connection.query("UPDATE employee SET ?, ? WHERE id=?",
-        [{
-          role_id: newRoleID
-        },
-        {
-          manager_id: newManagerID
-        },
-          employeeId],
-        (err, res) => {
-          if (err) throw err;
-          console.log(res.affectedRows + " employee updated!\n")
+      message: "Please select your employee's [ROLE] or [MANAGER] to update: ",
+      choices: ["ROLE", "MANAGER", "DONE"],
+      name: "update"
+    }).then(answer => {
+      const option = answer.update;
+      switch (option) {
+        case "ROLE":
+          updateRole();
+          break;
+        case "MANAGER":
+          updateManager();
+          break;
+        case "DONE":
           start();
-        });
-      console.log(query.sql);
-      console.log("-------------------------------------------------------------------------------------")
+          break;
+      };
     });
+
 };
 
 
@@ -412,6 +393,7 @@ managerIdQuery = manager => {
   });
 };
 
+
 employeeQuery = () => {
   return new Promise((resolve, reject) => {
     const employeeArr = [];
@@ -522,6 +504,70 @@ deleteEmployee = async () => {
       console.log(query.sql);
       console.log("-------------------------------------------------------------------------------------")
     });
+};
 
+updateRole = async () => {
+  inquirer
+    .prompt([{
+      type: "list",
+      message: "Please select the [EMPLOYEE] you'd like to update: ",
+      choices: await employeeQuery(),
+      name: "employee"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's updated [ROLE]: ",
+      choices: await roleQuery(),
+      name: "role"
+    }])
+    .then(async answer => {
+      console.log("Updating employee role...\n")
+      const employeeId = await employeeIdQuery(answer.employee);
+      const newRoleID = await roleIdQuery(answer.role);
+      //     const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      const query = connection.query("UPDATE employee SET ? WHERE id=?",
+        [{
+          role_id: newRoleID
+        },
+          employeeId], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " employee updated!\n")
+            start();
+          })
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    })
 }
 
+updateManager = async () => {
+  inquirer
+    .prompt([{
+      type: "list",
+      message: "Please select the [EMPLOYEE] you'd like to update: ",
+      choices: await employeeQuery(),
+      name: "employee"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's updated [ROLE]: ",
+      choices: await managerQuery(),
+      name: "manager"
+    }])
+    .then(async answer => {
+      console.log("Updating employee role...\n")
+      const employeeId = await employeeIdQuery(answer.employee);
+      const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      const query = connection.query("UPDATE employee SET ? WHERE id=?",
+        [{
+          manager_id: newManagerID
+        },
+          employeeId], (err, res) => {
+            if (err) throw err;
+            console.log(res.affectedRows + " employee updated!\n")
+            start();
+          })
+
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    })
+}
