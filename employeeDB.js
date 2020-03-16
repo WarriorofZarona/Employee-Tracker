@@ -464,4 +464,64 @@ deleteA = () => {
     });
 };
 
+deleteDepartment = async () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select the department to delete: ",
+      choices: await departmentQuery(),
+      name: "department"
+    }).then(answer => {
+      console.log("Deleting selected department...\n");
+      const dept = answer.department;
+      const query = connection.query("DELETE FROM department WHERE name=?", [dept], (err, res) => {
+        if (err) throw err;
+        console.log(res.affectedRows + " department deleted!\n")
+        start();
+      });
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    });
+};
+
+deleteRole = async () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select the role to delete: ",
+      choices: await roleQuery(),
+      name: "role"
+    }).then(answer => {
+      console.log("Deleting selected role...\n");
+      const role = answer.role;
+      const query = connection.query("DELETE FROM role WHERE title=?", [role], (err, res) => {
+        if (err) throw err;
+        console.log(res.affectedRows + " role deleted!\n")
+        start();
+      });
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    });
 }
+
+deleteEmployee = async () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select the employee to delete: ",
+      choices: await employeeQuery(),
+      name: "employee"
+    }).then(async answer => {
+      console.log("Deleting selected employee...\n");
+      const employeeId = await employeeIdQuery(answer.employee)
+      const query = connection.query("DELETE FROM employee WHERE id=?", [employeeId], (err, res) => {
+        if (err) throw err;
+        console.log(res.affectedRows + " employee deleted!\n")
+        start();
+      });
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    });
+
+}
+
