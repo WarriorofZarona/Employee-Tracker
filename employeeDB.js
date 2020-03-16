@@ -215,15 +215,18 @@ addEmployee = async () => {
 };
 
 departmentQuery = () => {
-  const deptArr = [];
-  connection.query("SELECT * FROM department", (err, res) => {
-    if (err) throw err;
-    res.forEach(department => {
-      deptArr.push(department.name)
+  return new Promise((resolve, reject) => {
+    const deptArr = [];
+    connection.query("SELECT * FROM department", (err, res) => {
+      if (err) throw err;
+      res.forEach(department => {
+        deptArr.push(department.name)
+        return err ? reject(err) : resolve(deptArr);
+      });
     });
   });
-  return deptArr;
 };
+
 
 departmentIdQuery = dept => {
   return new Promise((resolve, reject) => {
@@ -236,26 +239,29 @@ departmentIdQuery = dept => {
 };
 
 roleQuery = () => {
-  const roleArr = [];
-  connection.query("SELECT * FROM role", (err, res) => {
-    if (err) throw err;
-    res.forEach(role => {
-      roleArr.push(role.title)
+  return new Promise((resolve, reject) => {
+    const roleArr = [];
+    connection.query("SELECT * FROM role", (err, res) => {
+      if (err) throw err;
+      res.forEach(role => {
+        roleArr.push(role.title)
+        return err ? reject(err) : resolve(roleArr);
+      });
     });
   });
-  return roleArr;
 };
 
 managerQuery = () => {
-  const managerArr = [];
-  connection.query('SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS employee, role.title FROM employee RIGHT JOIN role ON employee.role_id = role.id WHERE role.title = "General Manager" OR role.title = "Assistant Manager" OR role.title = "Sales Lead" OR role.title = "HR Specialist"', (err, res) => {
-    if (err) throw err;
-    res.forEach(manager => {
-      managerArr.push(manager.employee)
-    });
-  })
-  managerArr.unshift("None");
-  return managerArr;
+  return new Promise((resolve, reject) => {
+    const managerArr = ["None"]
+    connection.query('SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS employee, role.title FROM employee RIGHT JOIN role ON employee.role_id = role.id WHERE role.title = "General Manager" OR role.title = "Assistant Manager" OR role.title = "Sales Lead" OR role.title = "HR Specialist"', (err, res) => {
+      if (err) throw err;
+      res.forEach(manager => {
+        managerArr.push(manager.employee)
+        return err ? reject(err) : resolve(managerArr);
+      });
+    })
+  });
 };
 
 roleIdQuery = role => {
@@ -304,7 +310,7 @@ update = async () => {
   inquirer
     .prompt([{
       type: "list",
-      message: "Please select an EMPLOYEE: ",
+      message: "Please select the EMPLOYEE you'd like to update: ",
       choices: await employeeQuery(),
       name: "employee"
     },
@@ -321,11 +327,47 @@ update = async () => {
       name: "manager"
     }])
     .then(async answer => {
-      const employee = answer.employee;
-      const newRole = await roleIdQuery();
-      const newManager = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      console.log("Updating employee role...\n")
+      const employeeId = await employeeIdQuery(answer.employee);
+      const newRoleID = await roleIdQuery(answer.role);
+      const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      const query = connection.query("UPDATE employee SET ?, ? WHERE id=?",
+        [{
+          role_id: newRoleID
+        },
+        {
+          manager_id: newManagerID
+        },
+          employeeId],
+        (err, res) => {
+          if (err) throw err;
+          console.log(res.affectedRows + " employee updated!\n")
+          start();
+        });
+      console.log(query.sql);
+    });
+};
 
+employeeQuery = () => {
+  return new Promise((resolve, reject) => {
+    const employeeArr = [];
+    connection.query("SELECT * FROM employee", (err, res) => {
+      if (err) throw err;
+      res.forEach(employee => {
+        let fullName = employee.first_name + " " + employee.last_name;
+        employeeArr.push(fullName)
+        return err ? reject(err) : resolve(employeeArr);
+      });
+    });
+  });
+};
 
-    })
+employeeIdQuery = (employee) => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * FROM employee WHERE CONCAT(first_name, ' ', last_name)=?", [employee], async (err, res) => {
+      if (err) throw err;
+      return err ? reject(err) : resolve(res[0].id);
+    });
+  });
 
 }
