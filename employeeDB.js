@@ -142,7 +142,6 @@ update = async () => {
 
 };
 
-
 addDepartment = () => {
   inquirer
     .prompt({
@@ -549,7 +548,7 @@ updateManager = async () => {
     },
     {
       type: "list",
-      message: "Please select the employee's updated [ROLE]: ",
+      message: "Please select the employee's updated [MANAGER] (Or [NONE] if there isn't one): ",
       choices: await managerQuery(),
       name: "manager"
     }])
