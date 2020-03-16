@@ -55,6 +55,7 @@ start = () => {
           break;
         case "EXIT":
           connection.end();
+          break;
       };
     });
 };
@@ -254,5 +255,31 @@ managerIdQuery = manager => {
       return err ? reject(err) : resolve(res[0].id);
     });
   });
+};
 
-}
+view = () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select what you would like to view: ",
+      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "DONE"],
+      name: "view"
+    }).then(answer => {
+      const option = answer.view;
+
+      switch (option) {
+        case "DEPARTMENTS":
+          viewDepartment();
+          break;
+        case "ROLES":
+          viewRole();
+          break;
+        case "EMPLOYEES":
+          viewEmployee();
+          break;
+        case "DONE":
+          start();
+          break;
+      };
+    });
+};
