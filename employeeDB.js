@@ -87,7 +87,7 @@ view = () => {
     .prompt({
       type: "list",
       message: "Please select what you would like to view: ",
-      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "BUDGET", "DONE"],
+      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "EMPLOYEES BY MANAGER", "BUDGET", "DONE"],
       name: "view"
     }).then(answer => {
       const option = answer.view;
@@ -100,6 +100,9 @@ view = () => {
           break;
         case "EMPLOYEES":
           viewEmployee();
+          break;
+        case "EMPLOYEES BY MANAGER":
+          viewEmployeesByManager();
           break;
         case "BUDGET":
           viewBudget();
@@ -289,6 +292,41 @@ viewEmployee = () => {
     console.log("-------------------------------------------------------------------------------------")
     start();
   });
+};
+
+viewEmployeesByManager = async () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Select a MANAGER to view employees (or NONE to see unmanaged employees): ",
+      choices: await managerQuery(),
+      name: "manager"
+    })
+    .then(async answer => {
+      const managerId = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      if (managerId === null) {
+        connection.query("SELECT CONCAT(first_name, ' ', last_name) as employees FROM employee where manager_id is null", (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          console.log("-------------------------------------------------------------------------------------")
+          start();
+        })
+      } else {
+        connection.query("SELECT CONCAT(first_name, ' ', last_name) as employees FROM employee where manager_id=?", [managerId], (err, res) => {
+          if (err) throw err;
+          console.log()
+          if (res.length < 1) {
+            console.log("No employees to show!")
+            console.log("-------------------------------------------------------------------------------------")
+            start();
+          } else {
+            console.table(res);
+            console.log("-------------------------------------------------------------------------------------")
+            start();
+          }
+        });
+      };
+    });
 };
 
 viewBudget = () => {
