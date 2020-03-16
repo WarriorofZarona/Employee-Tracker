@@ -194,16 +194,14 @@ addEmployee = async () => {
     });
 };
 
-
-
 departmentQuery = () => {
   const deptArr = [];
   connection.query("SELECT * FROM department", (err, res) => {
     if (err) throw err;
     res.forEach(department => {
       deptArr.push(department.name)
-    })
-  })
+    });
+  });
   return deptArr;
 };
 
@@ -213,8 +211,8 @@ departmentIdQuery = dept => {
       if (err) throw err;
       console.log(res)
       return err ? reject(err) : resolve(res[0].id);
-    })
-  })
+    });
+  });
 };
 
 roleQuery = () => {
@@ -223,10 +221,10 @@ roleQuery = () => {
     if (err) throw err;
     res.forEach(role => {
       roleArr.push(role.title)
-    })
-  })
+    });
+  });
   return roleArr;
-}
+};
 
 managerQuery = () => {
   const managerArr = [];
@@ -234,8 +232,27 @@ managerQuery = () => {
     if (err) throw err;
     res.forEach(manager => {
       managerArr.push(manager.employee)
-    })
+    });
   })
   managerArr.unshift("None");
   return managerArr;
 };
+
+roleIdQuery = role => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * FROM role WHERE title=?", [role], async (err, res) => {
+      if (err) throw err;
+      return err ? reject(err) : resolve(res[0].id);
+    });
+  });
+};
+
+managerIdQuery = manager => {
+  return new Promise((resolve, reject) => {
+    connection.query('SELECT * FROM employee WHERE CONCAT(first_name, " ", last_name)=?', [manager], async (err, res) => {
+      if (err) throw err;
+      return err ? reject(err) : resolve(res[0].id);
+    });
+  });
+
+}
