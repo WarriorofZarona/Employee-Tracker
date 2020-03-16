@@ -22,16 +22,8 @@ connection.connect(function (err) {
     };
     console.log(data)
   });
-  init();
+  viewEmployee();
 });
-
-init = () => {
-  connection.query('SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e INNER JOIN role ON e.role_id=role.id INNER JOIN department on role.department_id=department.id LEFT JOIN employee m ON m.id = e.manager_id', (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-};
 
 start = () => {
   inquirer
@@ -81,6 +73,33 @@ add = () => {
           break;
         case "EMPLOYEE":
           addEmployee();
+          break;
+        case "DONE":
+          start();
+          break;
+      };
+    });
+};
+
+
+view = () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select what you would like to view: ",
+      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "DONE"],
+      name: "view"
+    }).then(answer => {
+      const option = answer.view;
+      switch (option) {
+        case "DEPARTMENTS":
+          viewDepartment();
+          break;
+        case "ROLES":
+          viewRole();
+          break;
+        case "EMPLOYEES":
+          viewEmployee();
           break;
         case "DONE":
           start();
@@ -179,7 +198,7 @@ addEmployee = async () => {
       const firstName = answer.firstName;
       const lastName = answer.lastName;
       const roleId = await roleIdQuery(answer.role);
-      const managerId = answer.manager === "None" ? "null" : await managerIdQuery(answer.manager);
+      const managerId = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
       const query = connection.query("INSERT INTO employee SET ?",
         {
           first_name: firstName,
@@ -257,29 +276,56 @@ managerIdQuery = manager => {
   });
 };
 
-view = () => {
-  inquirer
-    .prompt({
-      type: "list",
-      message: "Please select what you would like to view: ",
-      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "DONE"],
-      name: "view"
-    }).then(answer => {
-      const option = answer.view;
-
-      switch (option) {
-        case "DEPARTMENTS":
-          viewDepartment();
-          break;
-        case "ROLES":
-          viewRole();
-          break;
-        case "EMPLOYEES":
-          viewEmployee();
-          break;
-        case "DONE":
-          start();
-          break;
-      };
-    });
+viewDepartment = () => {
+  connection.query("Select * FROM department", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  });
 };
+
+viewRole = () => {
+  connection.query("Select role.id, title, salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  });
+};
+
+viewEmployee = () => {
+  connection.query('SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e INNER JOIN role ON e.role_id=role.id INNER JOIN department on role.department_id=department.id LEFT JOIN employee m ON m.id = e.manager_id', (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    start();
+  });
+};
+
+update = async () => {
+  inquirer
+    .prompt([{
+      type: "list",
+      message: "Please select an EMPLOYEE: ",
+      choices: await employeeQuery(),
+      name: "employee"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's updated ROLE: ",
+      choices: await roleQuery(),
+      name: "role"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's new MANAGER, if applicable: ",
+      choices: await managerQuery(),
+      name: "manager"
+    }])
+    .then(async answer => {
+      const employee = answer.employee;
+      const newRole = await roleIdQuery();
+      const newManager = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+
+
+    })
+
+}
