@@ -125,7 +125,7 @@ addRole = async () => {
       },
       {
         type: "list",
-        message: "Please input the DEPARTMENT of the role: ",
+        message: "Please select the DEPARTMENT of the role: ",
         choices: await departmentQuery(),
         name: "department"
       }])
@@ -144,12 +144,57 @@ addRole = async () => {
           console.log(res.affectedRows + " role added!\n")
           start();
         });
-
       console.log(query.sql);
     });
+};
+
+addEmployee = async () => {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        message: "Please input your employee's FIRST name: ",
+        name: "firstName"
+      },
+      {
+        type: "input",
+        message: "Please input your employee's LAST name: ",
+        name: "lastName"
+      },
+      {
+        type: "list",
+        message: "Please select the ROLE of your employee: ",
+        choices: await roleQuery(),
+        name: "role"
+      },
+      {
+        type: "list",
+        message: "Please select the MANAGER of the employee, if applicable: ",
+        choices: await managerQuery(),
+        name: "manager"
+      }])
+    .then(async answer => {
+      console.log("Inserting a new employee...\n");
+      const firstName = answer.firstName;
+      const lastName = answer.lastName;
+      const roleId = await roleIdQuery(answer.role);
+      const managerId = answer.manager === "None" ? "null" : await managerIdQuery(answer.manager);
+      const query = connection.query("INSERT INTO employee SET ?",
+        {
+          first_name: firstName,
+          last_name: lastName,
+          role_id: roleId,
+          manager_id: managerId
+        }, (err, res) => {
+          if (err) throw err;
+          console.log(res.affectedRows + " employee added!\n")
+          start();
+        });
+      console.log(query.sql);
+    });
+};
 
 
-}
 
 departmentQuery = () => {
   const deptArr = [];
@@ -170,4 +215,27 @@ departmentIdQuery = dept => {
       return err ? reject(err) : resolve(res[0].id);
     })
   })
+};
+
+roleQuery = () => {
+  const roleArr = [];
+  connection.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
+    res.forEach(role => {
+      roleArr.push(role.title)
+    })
+  })
+  return roleArr;
+}
+
+managerQuery = () => {
+  const managerArr = [];
+  connection.query('SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS employee, role.title FROM employee RIGHT JOIN role ON employee.role_id = role.id WHERE role.title = "General Manager" OR role.title = "Assistant Manager" OR role.title = "Sales Lead" OR role.title = "HR Specialist"', (err, res) => {
+    if (err) throw err;
+    res.forEach(manager => {
+      managerArr.push(manager.employee)
+    })
+  })
+  managerArr.unshift("None");
+  return managerArr;
 };
