@@ -31,7 +31,7 @@ start = () => {
       type: "list",
       message: "Please select an option: ",
       name: "option",
-      choices: ["ADD", "VIEW", "UPDATE", "EXIT"]
+      choices: ["ADD", "VIEW", "UPDATE", "DELETE", "EXIT"]
     }).then(answer => {
       const option = answer.option;
 
@@ -44,6 +44,9 @@ start = () => {
           break;
         case "UPDATE":
           update();
+          break;
+        case "DELETE":
+          deleteA(); //Could not call it delete() so it is deleteA();
           break;
         case "EXIT":
           connection.end();
@@ -432,3 +435,33 @@ employeeIdQuery = (employee) => {
   });
 };
 
+deleteA = () => {
+  inquirer
+    .prompt({
+      type: "list",
+      message: "Please select what you would like to delete: ",
+      name: "delete",
+      choices: ["DEPARTMENT", "ROLE", "EMPLOYEE", "DONE"]
+
+    }).then(answer => {
+      const option = answer.delete;
+
+      switch (option) {
+
+        case "DEPARTMENT":
+          deleteDepartment();
+          break;
+        case "ROLE":
+          deleteRole();
+          break;
+        case "EMPLOYEE":
+          deleteEmployee();
+          break;
+        case "DONE":
+          start();
+          break;
+      };
+    });
+};
+
+}
