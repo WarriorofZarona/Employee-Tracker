@@ -29,7 +29,7 @@ start = () => {
   inquirer
     .prompt({
       type: "list",
-      message: "Please select an option",
+      message: "Please select an option: ",
       name: "option",
       choices: ["ADD", "VIEW", "UPDATE", "EXIT"]
     }).then(answer => {
@@ -56,7 +56,7 @@ add = () => {
   inquirer
     .prompt({
       type: "list",
-      message: "What would you like to add?",
+      message: "Please select what you would like to add: ",
       name: "add",
       choices: ["DEPARTMENT", "ROLE", "EMPLOYEE", "DONE"]
 
@@ -119,19 +119,19 @@ update = async () => {
   inquirer
     .prompt([{
       type: "list",
-      message: "Please select the EMPLOYEE you'd like to update: ",
+      message: "Please select the [EMPLOYEE] you'd like to update: ",
       choices: await employeeQuery(),
       name: "employee"
     },
     {
       type: "list",
-      message: "Please select the employee's updated ROLE: ",
+      message: "Please select the employee's updated [ROLE]: ",
       choices: await roleQuery(),
       name: "role"
     },
     {
       type: "list",
-      message: "Please select the employee's new MANAGER, if applicable: ",
+      message: "Please select the employee's new [MANAGER} (or [NONE] if there isn't one): ",
       choices: await managerQuery(),
       name: "manager"
     }])
@@ -163,7 +163,7 @@ addDepartment = () => {
   inquirer
     .prompt({
       type: "Input",
-      message: "Please input the NAME of the Department: ",
+      message: "Please input the [NAME] of the department: ",
       name: "name"
     }).then(answer => {
       console.log("Inserting a new department...\n");
@@ -186,17 +186,17 @@ addRole = async () => {
     .prompt([
       {
         type: "input",
-        message: "Please input the TITLE of the role: ",
+        message: "Please input the [TITLE] of the role: ",
         name: "title"
       },
       {
         type: "number",
-        message: "Please input the SALARY of the role: ",
+        message: "Please input the [SALARY] of the role: ",
         name: "salary"
       },
       {
         type: "list",
-        message: "Please select the DEPARTMENT of the role: ",
+        message: "Please select the [DEPARTMENT] of the role: ",
         choices: await departmentQuery(),
         name: "department"
       }])
@@ -225,23 +225,23 @@ addEmployee = async () => {
     .prompt([
       {
         type: "input",
-        message: "Please input your employee's FIRST name: ",
+        message: "Please input your employee's [FIRST] name: ",
         name: "firstName"
       },
       {
         type: "input",
-        message: "Please input your employee's LAST name: ",
+        message: "Please input your employee's [LAST] name: ",
         name: "lastName"
       },
       {
         type: "list",
-        message: "Please select the ROLE of your employee: ",
+        message: "Please select the [ROLE] of your employee: ",
         choices: await roleQuery(),
         name: "role"
       },
       {
         type: "list",
-        message: "Please select the MANAGER of the employee, if applicable: ",
+        message: "Please select the [MANAGER] of the employee (or [NONE] if there isn't one): ",
         choices: await managerQuery(),
         name: "manager"
       }])
