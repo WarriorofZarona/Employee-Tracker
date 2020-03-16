@@ -87,7 +87,7 @@ view = () => {
     .prompt({
       type: "list",
       message: "Please select what you would like to view: ",
-      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "DONE"],
+      choices: ["DEPARTMENTS", "ROLES", "EMPLOYEES", "BUDGET", "DONE"],
       name: "view"
     }).then(answer => {
       const option = answer.view;
@@ -101,12 +101,60 @@ view = () => {
         case "EMPLOYEES":
           viewEmployee();
           break;
+        case "BUDGET":
+          viewBudget();
+          break;
         case "DONE":
           start();
           break;
       };
     });
 };
+
+
+update = async () => {
+  inquirer
+    .prompt([{
+      type: "list",
+      message: "Please select the EMPLOYEE you'd like to update: ",
+      choices: await employeeQuery(),
+      name: "employee"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's updated ROLE: ",
+      choices: await roleQuery(),
+      name: "role"
+    },
+    {
+      type: "list",
+      message: "Please select the employee's new MANAGER, if applicable: ",
+      choices: await managerQuery(),
+      name: "manager"
+    }])
+    .then(async answer => {
+      console.log("Updating employee role...\n")
+      const employeeId = await employeeIdQuery(answer.employee);
+      const newRoleID = await roleIdQuery(answer.role);
+      const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
+      const query = connection.query("UPDATE employee SET ?, ? WHERE id=?",
+        [{
+          role_id: newRoleID
+        },
+        {
+          manager_id: newManagerID
+        },
+          employeeId],
+        (err, res) => {
+          if (err) throw err;
+          console.log(res.affectedRows + " employee updated!\n")
+          start();
+        });
+      console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
+    });
+};
+
 
 addDepartment = () => {
   inquirer
@@ -125,8 +173,8 @@ addDepartment = () => {
           console.log(res.affectedRows + " department added!\n")
           start();
         });
-
       console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
     });
 }
 
@@ -165,6 +213,7 @@ addRole = async () => {
           start();
         });
       console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
     });
 };
 
@@ -211,7 +260,47 @@ addEmployee = async () => {
           start();
         });
       console.log(query.sql);
+      console.log("-------------------------------------------------------------------------------------")
     });
+};
+
+viewDepartment = () => {
+  connection.query("Select * FROM department", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    console.log("-------------------------------------------------------------------------------------")
+    start();
+  });
+};
+
+viewRole = () => {
+  connection.query("Select role.id, title, salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id", (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    console.log("-------------------------------------------------------------------------------------")
+    start();
+  });
+};
+
+viewEmployee = () => {
+  connection.query('SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e INNER JOIN role ON e.role_id=role.id INNER JOIN department on role.department_id=department.id LEFT JOIN employee m ON m.id = e.manager_id', (err, res) => {
+    if (err) throw err;
+    console.table(res);
+    console.log("-------------------------------------------------------------------------------------")
+    start();
+  });
+};
+
+viewBudget = () => {
+  return new Promise((resolve, reject) => {
+    console.log("Calculating total budget...\n")
+    connection.query("SELECT SUM(salary) as sum FROM employee INNER JOIN role ON employee.role_id = role.id", async (err, res) => {
+      if (err) throw err;
+      console.log("The total budget is " + res[0].sum)
+      console.log("-------------------------------------------------------------------------------------")
+      start();
+    });
+  });
 };
 
 departmentQuery = () => {
@@ -226,7 +315,6 @@ departmentQuery = () => {
     });
   });
 };
-
 
 departmentIdQuery = dept => {
   return new Promise((resolve, reject) => {
@@ -251,6 +339,15 @@ roleQuery = () => {
   });
 };
 
+roleIdQuery = role => {
+  return new Promise((resolve, reject) => {
+    connection.query("SELECT * FROM role WHERE title=?", [role], async (err, res) => {
+      if (err) throw err;
+      return err ? reject(err) : resolve(res[0].id);
+    });
+  });
+};
+
 managerQuery = () => {
   return new Promise((resolve, reject) => {
     const managerArr = ["None"]
@@ -264,14 +361,6 @@ managerQuery = () => {
   });
 };
 
-roleIdQuery = role => {
-  return new Promise((resolve, reject) => {
-    connection.query("SELECT * FROM role WHERE title=?", [role], async (err, res) => {
-      if (err) throw err;
-      return err ? reject(err) : resolve(res[0].id);
-    });
-  });
-};
 
 managerIdQuery = manager => {
   return new Promise((resolve, reject) => {
@@ -280,72 +369,6 @@ managerIdQuery = manager => {
       return err ? reject(err) : resolve(res[0].id);
     });
   });
-};
-
-viewDepartment = () => {
-  connection.query("Select * FROM department", (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-};
-
-viewRole = () => {
-  connection.query("Select role.id, title, salary, department.name AS department FROM role INNER JOIN department ON role.department_id = department.id", (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-};
-
-viewEmployee = () => {
-  connection.query('SELECT e.id, CONCAT(e.first_name, " ", e.last_name) AS employee, role.title, department.name AS department, salary, CONCAT(m.first_name, " ", m.last_name) AS manager FROM employee e INNER JOIN role ON e.role_id=role.id INNER JOIN department on role.department_id=department.id LEFT JOIN employee m ON m.id = e.manager_id', (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    start();
-  });
-};
-
-update = async () => {
-  inquirer
-    .prompt([{
-      type: "list",
-      message: "Please select the EMPLOYEE you'd like to update: ",
-      choices: await employeeQuery(),
-      name: "employee"
-    },
-    {
-      type: "list",
-      message: "Please select the employee's updated ROLE: ",
-      choices: await roleQuery(),
-      name: "role"
-    },
-    {
-      type: "list",
-      message: "Please select the employee's new MANAGER, if applicable: ",
-      choices: await managerQuery(),
-      name: "manager"
-    }])
-    .then(async answer => {
-      console.log("Updating employee role...\n")
-      const employeeId = await employeeIdQuery(answer.employee);
-      const newRoleID = await roleIdQuery(answer.role);
-      const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
-      const query = connection.query("UPDATE employee SET ?, ? WHERE id=?",
-        [{
-          role_id: newRoleID
-        },
-        {
-          manager_id: newManagerID
-        },
-          employeeId],
-        (err, res) => {
-          if (err) throw err;
-          console.log(res.affectedRows + " employee updated!\n")
-          start();
-        });
-      console.log(query.sql);
-    });
 };
 
 employeeQuery = () => {
@@ -369,5 +392,5 @@ employeeIdQuery = (employee) => {
       return err ? reject(err) : resolve(res[0].id);
     });
   });
+};
 
-}
