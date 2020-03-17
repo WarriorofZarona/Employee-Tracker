@@ -316,7 +316,7 @@ updateManager = async () => {
       name: "manager"
     }])
     .then(async answer => {
-      console.log("Updating employee role...\n")
+      console.log("Updating employee's manager...\n")
       const employeeId = await employeeIdQuery(answer.employee);
       const newManagerID = answer.manager === "None" ? null : await managerIdQuery(answer.manager);
       const query = connection.query("UPDATE employee SET ? WHERE id=?",
