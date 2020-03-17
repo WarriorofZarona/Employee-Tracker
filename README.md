@@ -1,6 +1,6 @@
 
-# Employee Tracker ![GitHub package.json version](https://img.shields.io/github/package-json/v/WarriorofZarona/Employee-Tracker)
-Project using node to open connections to a mySQL database and display on the terminal
+# Employee Tracker ![GitHub package.json version](https://img.shields.io/github/package-json/v/WarriorofZarona/Good-README-Generator)
+Project 12 - Use node to connect to a mySQL database and display and manipulate the tables in the terminal itself
 
 # Tables of Contents
 * [Installation](#installation)
@@ -12,21 +12,21 @@ Project using node to open connections to a mySQL database and display on the te
 * [Credits](#credits)
 
 # Installation
-mySQL, inquirer, dotenv, figlet, console.table all are dependencies that are used, employee_db.sql is the seed file to run in mySQL workbench, run employeeDB.js in node to initialize
+Dependencies in package.json include mysql, inquirer, dotenv, figlet, and console.table. THe employeee_db.sql file is the seed data to run in mySQL workbench. Run node employeeDB.js to intialize the program.
 
 # Usage
-An app that allows a business owner to keep track of their employees, departments, and roles. User can view, add, update, and delete data, which is stored in a mySQL database.
+Allows a business owner to manage his employees, departments, and roles. Lets the user view, add, update, or delete data, which is stored in a mySQL database.
 
 # License
-No licenses used
+No licenses.
 
 
 
 # Contributing
-No contributing information
+No contributing information.
 
 # Tests
-Debugging
+Debugging only.
 
 # Questions
 ![Profile Avatar](https://avatars0.githubusercontent.com/u/56315576?v=4)
@@ -36,7 +36,7 @@ If you have any questions, please e-mail me at andrewbautista85@gmail.com.
 
 # Credits
 
-Github: [warriorofzarona](https://api.github.com/users/WarriorofZarona)
+Github: [WarriorofZarona](undefined)
 
 
 Copyright Andrew Bautista. All Rights Reserved.
