@@ -1,5 +1,8 @@
 
 # Employee Tracker ![GitHub package.json version](https://img.shields.io/github/package-json/v/WarriorofZarona/Good-README-Generator)
+
+![Employee Tracker](/Employee-Tracker.png)
+
 Project where I use node to open a connection to a mySQL database, then display and manipulate the data through the terminal
 
 # Tables of Contents

@@ -54,3 +54,5 @@ INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES ("Thomas
 SELECT * FROM employee;
 SELECT * FROM role;
 SELECT * FROM department;
+
+SELECT CONCAT(first_name, ' ', last_name) as employees FROM employee where manager_id=1
